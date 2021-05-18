@@ -58,7 +58,7 @@ prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https:
 futures = "0.3.12"
 hex-literal = "0.3.1"
 tracing = "0.1.25"
-serde = { version = "1.0.123", features = ["derive"] }
+serde = { version = "1.0.126", features = ["derive"] }
 thiserror = "1.0.23"
 
 # Polkadot
