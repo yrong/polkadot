@@ -32,7 +32,7 @@ use primitives::v1::{
 	InboundDownwardMessage, InboundHrmpMessage, SessionInfo,
 };
 use runtime_common::{
-	claims, paras_registrar, xcm_sender, slots, auctions, crowdloan,
+	claims, paras_sudo_wrapper, paras_registrar, xcm_sender, slots, auctions, crowdloan,
 	SlowAdjustingFeeUpdate, CurrencyToVote, impls::DealWithFees,
 	BlockHashCount, RocksDbWeight, BlockWeights, BlockLength, OffchainSolutionWeightLimit, OffchainSolutionLengthLimit,
 	ToAuthor,
@@ -842,6 +842,11 @@ impl pallet_utility::Config for Runtime {
 	type WeightInfo = weights::pallet_utility::WeightInfo<Runtime>;
 }
 
+impl pallet_sudo::Config for Runtime {
+	type Event = Event;
+	type Call = Call;
+}
+
 parameter_types! {
 	// One storage item; key size is 32; value is size 4+4+16+32 bytes = 56 bytes.
 	pub const DepositBase: Balance = deposit(1, 88);
@@ -937,6 +942,7 @@ pub enum ProxyType {
 	NonTransfer,
 	Governance,
 	Staking,
+	SudoBalances,
 	IdentityJudgement,
 	CancelProxy,
 }
@@ -1011,6 +1017,11 @@ impl InstanceFilter<Call> for ProxyType {
 				Call::Session(..) |
 				Call::Utility(..)
 			),
+			ProxyType::SudoBalances => match c {
+				Call::Sudo(pallet_sudo::Call::sudo(ref x)) => matches!(x.as_ref(), &Call::Balances(..)),
+				Call::Utility(..) => true,
+				_ => false,
+			},
 			ProxyType::IdentityJudgement => matches!(c,
 				Call::Identity(pallet_identity::Call::provide_judgement(..)) |
 				Call::Utility(..)
@@ -1090,6 +1101,8 @@ impl parachains_initializer::Config for Runtime {
 	type Randomness = pallet_babe::RandomnessFromOneEpochAgo<Runtime>;
 	type ForceOrigin = EnsureRoot<AccountId>;
 }
+
+impl paras_sudo_wrapper::Config for Runtime {}
 
 parameter_types! {
 	pub const ParaDeposit: Balance = deposit(10, MAX_CODE_SIZE + MAX_HEAD_SIZE);
@@ -1410,6 +1423,9 @@ construct_runtime! {
 		// Claims. Usable initially.
 		Claims: claims::{Pallet, Call, Storage, Event<T>, Config<T>, ValidateUnsigned} = 19,
 
+		// Sudo.
+		Sudo: pallet_sudo::{Pallet, Call, Storage, Event<T>, Config<T>} = 21,
+
 		// Utility module.
 		Utility: pallet_utility::{Pallet, Call, Event} = 24,
 
@@ -1465,6 +1481,7 @@ construct_runtime! {
 		Slots: slots::{Pallet, Call, Storage, Event<T>} = 71,
 		Auctions: auctions::{Pallet, Call, Storage, Event<T>} = 72,
 		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>} = 73,
+		ParasSudoWrapper: paras_sudo_wrapper::{Pallet, Call} = 74,
 
 		// Pallet for sending XCM.
 		XcmPallet: pallet_xcm::{Pallet, Call, Storage, Event<T>} = 99,
