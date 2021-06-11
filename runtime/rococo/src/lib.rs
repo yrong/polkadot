@@ -66,7 +66,7 @@ use sp_staking::SessionIndex;
 use pallet_session::historical as session_historical;
 use beefy_primitives::ecdsa::AuthorityId as BeefyId;
 use pallet_mmr_primitives as mmr;
-use frame_system::EnsureRoot;
+use frame_system::{EnsureRoot, Config};
 use runtime_common::{paras_sudo_wrapper, paras_registrar, xcm_sender, auctions, crowdloan, slots};
 
 use runtime_parachains::origin as parachains_origin;
@@ -92,15 +92,17 @@ use xcm_builder::{
 	AccountId32Aliases, ChildParachainConvertsVia, SovereignSignedViaLocation,
 	CurrencyAdapter as XcmCurrencyAdapter, ChildParachainAsNative, SignedAccountId32AsNative,
 	ChildSystemParachainAsSuperuser, LocationInverter, IsConcrete, FixedWeightBounds,
-	BackingToPlurality, SignedToAccountId32, UsingComponents,
+	BackingToPlurality, SignedToAccountId32, UsingComponents,EnsureXcmOrigin,
 };
 use constants::{time::*, currency::*, fee::*, size::*};
-use frame_support::traits::InstanceFilter;
+use frame_support::traits::{InstanceFilter, ReservableCurrency};
 
 /// Constant values used within the runtime.
 pub mod constants;
 mod validator_manager;
 
+/// template pallet
+pub use template;
 // Make the WASM binary available.
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
@@ -182,6 +184,15 @@ impl_opaque_keys! {
 	}
 }
 
+impl template::Config for Runtime {
+	type Event = Event;
+	type Origin = Origin;
+	type Call = Call;
+	type XcmSender = XcmRouter;
+	type SendXcmOrigin = EnsureXcmOrigin<Origin, LocalOriginToLocation>;
+	type Currency = Balances;
+}
+
 construct_runtime! {
 	pub enum Runtime where
 		Block = Block,
@@ -254,6 +265,8 @@ construct_runtime! {
 
 		// Pallet for sending XCM.
 		XcmPallet: pallet_xcm::{Pallet, Call, Storage, Event<T>} = 99,
+		// Pallet for test template
+		TemplatePallet: template::{Pallet, Call, Storage, Event<T>} = 100,
 	}
 }
 

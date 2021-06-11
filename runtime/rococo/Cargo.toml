@@ -73,6 +73,9 @@ bp-rococo = { path = "../../bridges/primitives/chain-rococo", default-features =
 bp-wococo = { path = "../../bridges/primitives/chain-wococo", default-features = false }
 pallet-bridge-grandpa = { path = "../../bridges/modules/grandpa", default-features = false }
 
+# Test
+template = { package = "pallet-template", path = "../../template", default-features = false }
+
 max-encoded-len = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.4" }
 
 [build-dependencies]
@@ -136,6 +139,7 @@ std = [
 	"pallet-xcm/std",
 	"log/std",
 	"max-encoded-len/std",
+	"template/std",
 ]
 # When enabled, the runtime api will not be build.
 #

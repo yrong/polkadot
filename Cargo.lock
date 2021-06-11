@@ -5089,6 +5089,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-template"
+version = "3.0.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "log",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+]
+
+[[package]]
 name = "pallet-timestamp"
 version = "3.0.0"
 source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.4#ea5d3570673d125dfe0b7da33b345c3c13195380"
@@ -7545,6 +7561,7 @@ dependencies = [
  "pallet-staking",
  "pallet-staking-reward-curve",
  "pallet-sudo",
+ "pallet-template",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
