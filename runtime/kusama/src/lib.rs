@@ -55,12 +55,7 @@ use runtime_parachains::runtime_api_impl::v1 as parachains_runtime_api_impl;
 
 use xcm::v0::{MultiLocation::{self, Null, X1}, NetworkId, BodyId, Xcm, Junction::Parachain};
 use xcm::v0::MultiAsset::{self, AllConcreteFungible};
-use xcm_builder::{
-	AccountId32Aliases, ChildParachainConvertsVia, SovereignSignedViaLocation, CurrencyAdapter as XcmCurrencyAdapter,
-	ChildParachainAsNative, SignedAccountId32AsNative, ChildSystemParachainAsSuperuser, LocationInverter,
-	IsConcrete, FixedWeightBounds, TakeWeightCredit, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom,
-	IsChildSystemParachain, UsingComponents, BackingToPlurality, SignedToAccountId32,
-};
+use xcm_builder::{AccountId32Aliases, ChildParachainConvertsVia, SovereignSignedViaLocation, CurrencyAdapter as XcmCurrencyAdapter, ChildParachainAsNative, SignedAccountId32AsNative, ChildSystemParachainAsSuperuser, LocationInverter, IsConcrete, FixedWeightBounds, TakeWeightCredit, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom, IsChildSystemParachain, UsingComponents, BackingToPlurality, SignedToAccountId32, ParachainAccountId32Aliases, AllowXcmTransactFrom};
 use xcm_executor::XcmExecutor;
 use sp_arithmetic::Perquintill;
 use sp_runtime::{
@@ -104,6 +99,9 @@ pub use pallet_balances::Call as BalancesCall;
 /// Constant values used within the runtime.
 pub mod constants;
 use constants::{time::*, currency::*, fee::*, paras::*};
+use sp_std::marker::PhantomData;
+use frame_support::traits::Contains;
+use xcm_executor::traits::ShouldExecute;
 
 // Weights used in the runtime.
 mod weights;
@@ -1202,6 +1200,8 @@ pub type SovereignAccountOf = (
 	ChildParachainConvertsVia<ParaId, AccountId>,
 	// We can directly alias an `AccountId32` into a local account.
 	AccountId32Aliases<KusamaNetwork, AccountId>,
+	// `AccountId32` which origin from parachain
+	ParachainAccountId32Aliases<KusamaNetwork, AccountId>,
 );
 
 /// Our asset transactor. This is what allows us to interest with the runtime facilities from the point of
@@ -1262,6 +1262,8 @@ pub type Barrier = (
 	AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
 	// Messages coming from system parachains need not pay for execution.
 	AllowUnpaidExecutionFrom<IsChildSystemParachain<ParaId>>,
+	// Allows xcm transact execution from any origin
+	AllowXcmTransactFrom<All<MultiLocation>>,
 );
 
 pub struct XcmConfig;

@@ -89,13 +89,13 @@ use polkadot_parachain::primitives::Id as ParaId;
 use xcm::v0::{Xcm, MultiLocation, NetworkId, BodyId};
 use xcm_executor::XcmExecutor;
 use xcm_builder::{
-	AccountId32Aliases, ChildParachainConvertsVia, SovereignSignedViaLocation,
+	AccountId32Aliases, ParachainAccountId32Aliases,ChildParachainConvertsVia, SovereignSignedViaLocation,
 	CurrencyAdapter as XcmCurrencyAdapter, ChildParachainAsNative, SignedAccountId32AsNative,
 	ChildSystemParachainAsSuperuser, LocationInverter, IsConcrete, FixedWeightBounds,
 	BackingToPlurality, SignedToAccountId32, UsingComponents,EnsureXcmOrigin,
 };
 use constants::{time::*, currency::*, fee::*, size::*};
-use frame_support::traits::{InstanceFilter, ReservableCurrency};
+use frame_support::traits::{InstanceFilter, ReservableCurrency, Contains};
 
 /// Constant values used within the runtime.
 pub mod constants;
@@ -607,6 +607,7 @@ parameter_types! {
 pub type SovereignAccountOf = (
 	ChildParachainConvertsVia<ParaId, AccountId>,
 	AccountId32Aliases<RococoNetwork, AccountId>,
+	ParachainAccountId32Aliases<RococoNetwork, AccountId>,
 );
 
 pub type LocalAssetTransactor =
@@ -669,11 +670,15 @@ parameter_types! {
 		];
 }
 
-use xcm_builder::{TakeWeightCredit, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom};
+use xcm_builder::{TakeWeightCredit, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom, AllowXcmTransactFrom};
+use sp_std::marker::PhantomData;
+use xcm_executor::traits::ShouldExecute;
+
 pub type Barrier = (
 	TakeWeightCredit,
 	AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
 	AllowUnpaidExecutionFrom<IsInVec<AllowUnpaidFrom>>,	// <- Trusted parachains get free execution
+	AllowXcmTransactFrom<All<MultiLocation>>,
 );
 
 pub struct XcmConfig;
