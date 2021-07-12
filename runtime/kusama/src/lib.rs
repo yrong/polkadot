@@ -100,7 +100,7 @@ pub use pallet_election_provider_multi_phase::Call as EPMCall;
 
 /// Constant values used within the runtime.
 pub mod constants;
-use constants::{time::*, currency::*, fee::*, paras::*};
+use constants::{time::*, currency::*, fee::*};
 use sp_std::marker::PhantomData;
 use frame_support::traits::Contains;
 use xcm_executor::traits::ShouldExecute;
