@@ -348,7 +348,7 @@ impl pallet_session::historical::Config for Runtime {
 use pallet_election_provider_multi_phase::WeightInfo;
 parameter_types! {
 	// no signed phase for now, just unsigned.
-	pub const SignedPhase: u32 = EpochDurationInBlocks::get() as u32/ 4;
+	pub SignedPhase: u32 = EpochDurationInBlocks::get() as u32/ 4;
 	pub UnsignedPhase: u32 = EpochDurationInBlocks::get() as u32/ 4;
 
 	// signed config
