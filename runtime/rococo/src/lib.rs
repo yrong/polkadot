@@ -95,11 +95,11 @@ use xcm_builder::{
 	BackingToPlurality, SignedToAccountId32, UsingComponents,
 };
 
-use constants::{time::*, currency::*, fee::*, size::*};
 use frame_support::traits::{InstanceFilter, ReservableCurrency, Contains};
 
 /// Constant values used within the runtime.
 pub mod constants;
+use constants::{time::*, currency::*, fee::*};
 mod validator_manager;
 
 // Make the WASM binary available.
