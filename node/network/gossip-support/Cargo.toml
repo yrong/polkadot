@@ -10,6 +10,6 @@ polkadot-node-subsystem = { path = "../../subsystem" }
 polkadot-node-subsystem-util = { path = "../../subsystem-util" }
 polkadot-primitives = { path = "../../../primitives" }
 
-futures = "0.3.8"
+futures = "0.3.16"
 tracing = "0.1.25"
 rand = "0.8.3"
