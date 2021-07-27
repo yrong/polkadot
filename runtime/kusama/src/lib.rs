@@ -1232,8 +1232,6 @@ pub type SovereignAccountOf = (
 	ChildParachainConvertsVia<ParaId, AccountId>,
 	// We can directly alias an `AccountId32` into a local account.
 	AccountId32Aliases<KusamaNetwork, AccountId>,
-	// `AccountId32` which origin from parachain
-	ParachainAccountId32Aliases<KusamaNetwork, AccountId>,
 );
 
 /// Our asset transactor. This is what allows us to interest with the runtime facilities from the point of

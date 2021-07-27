@@ -598,7 +598,6 @@ parameter_types! {
 pub type SovereignAccountOf = (
 	ChildParachainConvertsVia<ParaId, AccountId>,
 	AccountId32Aliases<RococoNetwork, AccountId>,
-	ParachainAccountId32Aliases<RococoNetwork, AccountId>,
 );
 
 pub type LocalAssetTransactor =

@@ -50,7 +50,17 @@ impl<T: Contains<MultiLocation>> ShouldExecute for AllowTopLevelPaidExecutionFro
 	) -> Result<(), ()> {
 		ensure!(T::contains(origin), ());
 		ensure!(top_level, ());
-		Ok(())
+		match message {
+			Xcm::TeleportAsset { effects, .. }
+			| Xcm::WithdrawAsset { effects, ..}
+			| Xcm::ReserveAssetDeposit { effects, ..}
+			if matches!(
+					effects.first(),
+					Some(Order::BuyExecution { debt, ..}) if *debt >= shallow_weight
+				)
+			=> Ok(()),
+			_ => Err(()),
+		}
 	}
 }
 
