@@ -71,7 +71,7 @@ pub type PolkadotChainSpec = service::GenericChainSpec<polkadot::GenesisConfig, 
 
 /// The `ChainSpec` parameterized for the kusama runtime.
 #[cfg(feature = "kusama-native")]
-pub type KusamaChainSpec = service::GenericChainSpec<kusama::GenesisConfig, Extensions>;
+pub type KusamaChainSpec = service::GenericChainSpec<KusamaGenesisExt, Extensions>;
 
 /// The `ChainSpec` parameterized for the kusama runtime.
 // This actually uses the polkadot chain spec, but that is fine when we don't have the native runtime.
@@ -80,7 +80,7 @@ pub type KusamaChainSpec = PolkadotChainSpec;
 
 /// The `ChainSpec` parameterized for the westend runtime.
 #[cfg(feature = "westend-native")]
-pub type WestendChainSpec = service::GenericChainSpec<westend::GenesisConfig, Extensions>;
+pub type WestendChainSpec = service::GenericChainSpec<WestendGenesisExt, Extensions>;
 
 /// The `ChainSpec` parameterized for the westend runtime.
 // This actually uses the polkadot chain spec, but that is fine when we don't have the native runtime.
@@ -117,6 +117,60 @@ impl sp_runtime::BuildStorage for RococoGenesisExt {
 		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
 			if let Some(length) = self.session_length_in_blocks.as_ref() {
 				rococo::constants::time::EpochDurationInBlocks::set(length);
+			}
+		});
+		self.runtime_genesis_config.assimilate_storage(storage)
+	}
+}
+
+/// Extension for the Kusama genesis config to support a custom changes to the genesis state.
+#[derive(serde::Serialize, serde::Deserialize)]
+#[cfg(feature = "kusama-native")]
+pub struct KusamaGenesisExt {
+	/// The runtime genesis config.
+	runtime_genesis_config: kusama::GenesisConfig,
+	/// The session length in blocks.
+	///
+	/// If `None` is supplied, the default value is used.
+	session_length_in_blocks: Option<u32>,
+}
+
+#[cfg(feature = "kusama-native")]
+impl sp_runtime::BuildStorage for KusamaGenesisExt {
+	fn assimilate_storage(
+		&self,
+		storage: &mut sp_core::storage::Storage,
+	) -> Result<(), String> {
+		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
+			if let Some(length) = self.session_length_in_blocks.as_ref() {
+				kusama::constants::time::EpochDurationInBlocks::set(length);
+			}
+		});
+		self.runtime_genesis_config.assimilate_storage(storage)
+	}
+}
+
+/// Extension for the Westend genesis config to support a custom changes to the genesis state.
+#[derive(serde::Serialize, serde::Deserialize)]
+#[cfg(feature = "westend-native")]
+pub struct WestendGenesisExt {
+	/// The runtime genesis config.
+	runtime_genesis_config: westend::GenesisConfig,
+	/// The session length in blocks.
+	///
+	/// If `None` is supplied, the default value is used.
+	session_length_in_blocks: Option<u32>,
+}
+
+#[cfg(feature = "westend-native")]
+impl sp_runtime::BuildStorage for WestendGenesisExt {
+	fn assimilate_storage(
+		&self,
+		storage: &mut sp_core::storage::Storage,
+	) -> Result<(), String> {
+		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
+			if let Some(length) = self.session_length_in_blocks.as_ref() {
+				westend::constants::time::EpochDurationInBlocks::set(length);
 			}
 		});
 		self.runtime_genesis_config.assimilate_storage(storage)
@@ -1023,7 +1077,10 @@ pub fn kusama_staging_testnet_config() -> Result<KusamaChainSpec, String> {
 		"Kusama Staging Testnet",
 		"kusama_staging_testnet",
 		ChainType::Live,
-		move || kusama_staging_testnet_config_genesis(wasm_binary),
+		move || KusamaGenesisExt {
+			runtime_genesis_config: kusama_staging_testnet_config_genesis(wasm_binary),
+			session_length_in_blocks: None,
+		},
 		boot_nodes,
 		Some(
 			TelemetryEndpoints::new(vec![(KUSAMA_STAGING_TELEMETRY_URL.to_string(), 0)])
@@ -1045,7 +1102,10 @@ pub fn westend_staging_testnet_config() -> Result<WestendChainSpec, String> {
 		"Westend Staging Testnet",
 		"westend_staging_testnet",
 		ChainType::Live,
-		move || westend_staging_testnet_config_genesis(wasm_binary),
+		move || WestendGenesisExt {
+			runtime_genesis_config: westend_staging_testnet_config_genesis(wasm_binary),
+			session_length_in_blocks: None,
+		},
 		boot_nodes,
 		Some(
 			TelemetryEndpoints::new(vec![(WESTEND_STAGING_TELEMETRY_URL.to_string(), 0)])
@@ -1594,7 +1654,11 @@ pub fn kusama_development_config() -> Result<KusamaChainSpec, String> {
 		"Development",
 		"kusama_dev",
 		ChainType::Development,
-		move || kusama_development_config_genesis(wasm_binary),
+		move || KusamaGenesisExt {
+			runtime_genesis_config: kusama_development_config_genesis(wasm_binary),
+			// Use 1 minute session length.
+			session_length_in_blocks: Some(10),
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
@@ -1612,7 +1676,11 @@ pub fn westend_development_config() -> Result<WestendChainSpec, String> {
 		"Development",
 		"westend_dev",
 		ChainType::Development,
-		move || westend_development_config_genesis(wasm_binary),
+		move || WestendGenesisExt {
+			runtime_genesis_config: westend_development_config_genesis(wasm_binary),
+			// Use 1 minute session length.
+			session_length_in_blocks: Some(10),
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
@@ -1717,7 +1785,11 @@ pub fn kusama_local_testnet_config() -> Result<KusamaChainSpec, String> {
 		"Kusama Local Testnet",
 		"kusama_local_testnet",
 		ChainType::Local,
-		move || kusama_local_testnet_genesis(wasm_binary),
+		move || KusamaGenesisExt {
+			runtime_genesis_config: kusama_local_testnet_genesis(wasm_binary),
+			// Use 1 minute session length.
+			session_length_in_blocks: Some(10),
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
@@ -1748,7 +1820,11 @@ pub fn westend_local_testnet_config() -> Result<WestendChainSpec, String> {
 		"Westend Local Testnet",
 		"westend_local_testnet",
 		ChainType::Local,
-		move || westend_local_testnet_genesis(wasm_binary),
+		move || WestendGenesisExt {
+			runtime_genesis_config: westend_local_testnet_genesis(wasm_binary),
+			// Use 1 minute session length.
+			session_length_in_blocks: Some(10),
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
