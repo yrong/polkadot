@@ -89,16 +89,17 @@ use polkadot_parachain::primitives::Id as ParaId;
 use xcm::v0::{Xcm, MultiLocation, NetworkId, BodyId};
 use xcm_executor::XcmExecutor;
 use xcm_builder::{
-	AccountId32Aliases, ChildParachainConvertsVia, SovereignSignedViaLocation,
+	AccountId32Aliases,ChildParachainConvertsVia, SovereignSignedViaLocation,
 	CurrencyAdapter as XcmCurrencyAdapter, ChildParachainAsNative, SignedAccountId32AsNative,
 	ChildSystemParachainAsSuperuser, LocationInverter, IsConcrete, FixedWeightBounds,
 	BackingToPlurality, SignedToAccountId32, UsingComponents,
 };
-use constants::{time::*, currency::*, fee::*};
-use frame_support::traits::InstanceFilter;
+
+use frame_support::traits::{InstanceFilter, ReservableCurrency, Contains};
 
 /// Constant values used within the runtime.
 pub mod constants;
+use constants::{time::*, currency::*, fee::*};
 mod validator_manager;
 
 // Make the WASM binary available.
@@ -224,7 +225,7 @@ construct_runtime! {
 		// Parachain Onboarding Pallets
 		Registrar: paras_registrar::{Pallet, Call, Storage, Event<T>},
 		Auctions: auctions::{Pallet, Call, Storage, Event<T>},
-		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>},
+		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>} = 73,
 		Slots: slots::{Pallet, Call, Storage, Event<T>},
 		ParasSudoWrapper: paras_sudo_wrapper::{Pallet, Call},
 
@@ -660,6 +661,9 @@ parameter_types! {
 }
 
 use xcm_builder::{TakeWeightCredit, AllowTopLevelPaidExecutionFrom, AllowUnpaidExecutionFrom};
+use sp_std::marker::PhantomData;
+use xcm_executor::traits::ShouldExecute;
+
 pub type Barrier = (
 	TakeWeightCredit,
 	AllowTopLevelPaidExecutionFrom<All<MultiLocation>>,
