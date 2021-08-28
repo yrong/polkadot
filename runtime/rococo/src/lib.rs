@@ -225,7 +225,7 @@ construct_runtime! {
 		// Parachain Onboarding Pallets
 		Registrar: paras_registrar::{Pallet, Call, Storage, Event<T>},
 		Auctions: auctions::{Pallet, Call, Storage, Event<T>},
-		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>},
+		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>} = 73,
 		Slots: slots::{Pallet, Call, Storage, Event<T>},
 		ParasSudoWrapper: paras_sudo_wrapper::{Pallet, Call},
 

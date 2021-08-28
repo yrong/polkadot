@@ -70,6 +70,7 @@ pallet-tips = { git = "https://github.com/paritytech/substrate", default-feature
 pallet-treasury = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.9" }
 pallet-utility = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.9" }
 pallet-vesting = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.9" }
+pallet-sudo = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.9" }
 pallet-xcm = { path = "../../xcm/pallet-xcm", default-features = false }
 frame-election-provider-support = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.9" }
 
@@ -119,6 +120,7 @@ std = [
 	"sp-io/std",
 	"frame-support/std",
 	"frame-executive/std",
+	"pallet-sudo/std",
 	"pallet-authority-discovery/std",
 	"pallet-authorship/std",
 	"pallet-balances/std",
