@@ -75,7 +75,7 @@ pub struct Extensions {
 
 /// The `ChainSpec` parameterized for the polkadot runtime.
 #[cfg(feature = "polkadot-native")]
-pub type PolkadotChainSpec = service::GenericChainSpec<polkadot::GenesisConfig, Extensions>;
+pub type PolkadotChainSpec = service::GenericChainSpec<PolkadotGenesisExt, Extensions>;
 
 // Dummy chain spec, in case when we don't have the native runtime.
 pub type DummyChainSpec = service::GenericChainSpec<(), Extensions>;
@@ -147,13 +147,32 @@ pub struct KusamaGenesisExt {
 }
 
 impl sp_runtime::BuildStorage for KusamaGenesisExt {
-	fn assimilate_storage(
-		&self,
-		storage: &mut sp_core::storage::Storage,
-	) -> Result<(), String> {
+	fn assimilate_storage(&self, storage: &mut sp_core::storage::Storage) -> Result<(), String> {
 		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
 			if let Some(length) = self.session_length_in_blocks.as_ref() {
 				kusama::constants::time::EpochDurationInBlocks::set(length);
+			}
+		});
+		self.runtime_genesis_config.assimilate_storage(storage)
+	}
+}
+
+/// Extension for the Polkadot genesis config to support a custom changes to the genesis state.
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct PolkadotGenesisExt {
+	/// The runtime genesis config.
+	runtime_genesis_config: polkadot::GenesisConfig,
+	/// The session length in blocks.
+	///
+	/// If `None` is supplied, the default value is used.
+	session_length_in_blocks: Option<u32>,
+}
+
+impl sp_runtime::BuildStorage for PolkadotGenesisExt {
+	fn assimilate_storage(&self, storage: &mut sp_core::storage::Storage) -> Result<(), String> {
+		sp_state_machine::BasicExternalities::execute_with_storage(storage, || {
+			if let Some(length) = self.session_length_in_blocks.as_ref() {
+				polkadot::constants::time::EpochDurationInBlocks::set(length);
 			}
 		});
 		self.runtime_genesis_config.assimilate_storage(storage)
@@ -398,6 +417,7 @@ fn polkadot_staging_testnet_config_genesis(wasm_binary: &[u8]) -> polkadot::Gene
 			config: default_parachains_host_configuration(),
 		},
 		paras: Default::default(),
+		sudo: polkadot::SudoConfig { key: endowed_accounts[0].clone() },
 	}
 }
 
@@ -772,13 +792,8 @@ fn kusama_staging_testnet_config_genesis(wasm_binary: &[u8]) -> kusama::GenesisC
 		grandpa: Default::default(),
 		im_online: Default::default(),
 		authority_discovery: kusama::AuthorityDiscoveryConfig { keys: vec![] },
-		sudo: kusama::SudoConfig {
-			key: endowed_accounts[0].clone(),
-		},
-		claims: kusama::ClaimsConfig {
-			claims: vec![],
-			vesting: vec![],
-		},
+		sudo: kusama::SudoConfig { key: endowed_accounts[0].clone() },
+		claims: kusama::ClaimsConfig { claims: vec![], vesting: vec![] },
 		vesting: kusama::VestingConfig { vesting: vec![] },
 		treasury: Default::default(),
 		configuration: kusama::ConfigurationConfig {
@@ -1114,7 +1129,10 @@ pub fn polkadot_staging_testnet_config() -> Result<PolkadotChainSpec, String> {
 		"Polkadot Staging Testnet",
 		"polkadot_staging_testnet",
 		ChainType::Live,
-		move || polkadot_staging_testnet_config_genesis(wasm_binary),
+		move || PolkadotGenesisExt {
+			runtime_genesis_config: polkadot_staging_testnet_config_genesis(wasm_binary),
+			session_length_in_blocks: None,
+		},
 		boot_nodes,
 		Some(
 			TelemetryEndpoints::new(vec![(POLKADOT_STAGING_TELEMETRY_URL.to_string(), 0)])
@@ -1357,6 +1375,7 @@ pub fn polkadot_testnet_genesis(
 			config: default_parachains_host_configuration(),
 		},
 		paras: Default::default(),
+		sudo: polkadot::SudoConfig { key: endowed_accounts[0].clone() },
 	}
 }
 
@@ -1437,13 +1456,8 @@ pub fn kusama_testnet_genesis(
 		grandpa: Default::default(),
 		im_online: Default::default(),
 		authority_discovery: kusama::AuthorityDiscoveryConfig { keys: vec![] },
-		sudo: kusama::SudoConfig {
-			key: endowed_accounts[0].clone(),
-		},
-		claims: kusama::ClaimsConfig {
-			claims: vec![],
-			vesting: vec![],
-		},
+		sudo: kusama::SudoConfig { key: endowed_accounts[0].clone() },
+		claims: kusama::ClaimsConfig { claims: vec![], vesting: vec![] },
 		vesting: kusama::VestingConfig { vesting: vec![] },
 		treasury: Default::default(),
 		configuration: kusama::ConfigurationConfig {
@@ -1676,7 +1690,10 @@ pub fn polkadot_development_config() -> Result<PolkadotChainSpec, String> {
 		"Development",
 		"dev",
 		ChainType::Development,
-		move || polkadot_development_config_genesis(wasm_binary),
+		move || PolkadotGenesisExt {
+			runtime_genesis_config: polkadot_development_config_genesis(wasm_binary),
+			session_length_in_blocks: Some(10),
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
@@ -1791,7 +1808,10 @@ pub fn polkadot_local_testnet_config() -> Result<PolkadotChainSpec, String> {
 		"Local Testnet",
 		"local_testnet",
 		ChainType::Local,
-		move || polkadot_local_testnet_genesis(wasm_binary),
+		move || PolkadotGenesisExt {
+			runtime_genesis_config: polkadot_local_testnet_genesis(wasm_binary),
+			session_length_in_blocks: None,
+		},
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
