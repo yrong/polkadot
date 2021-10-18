@@ -68,6 +68,7 @@ pallet-treasury = { git = "https://github.com/paritytech/substrate", default-fea
 pallet-vesting = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.11" }
 pallet-utility = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.11" }
 frame-election-provider-support = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.11" }
+pallet-sudo = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.11" }
 
 frame-benchmarking = { git = "https://github.com/paritytech/substrate", default-features = false, optional = true , branch = "polkadot-v0.9.11" }
 frame-try-runtime = { git = "https://github.com/paritytech/substrate", default-features = false, optional = true , branch = "polkadot-v0.9.11" }
@@ -140,6 +141,7 @@ std = [
 	"pallet-babe/std",
 	"pallet-vesting/std",
 	"pallet-utility/std",
+	"pallet-sudo/std",
 	"sp-runtime/std",
 	"sp-staking/std",
 	"frame-system/std",
