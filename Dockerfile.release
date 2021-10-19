@@ -13,7 +13,9 @@ FROM docker.io/library/ubuntu:20.04
 LABEL description="This is the 2nd stage: a very small image where we copy the polkadot binary."
 COPY --from=builder /polkadot/target/release/polkadot /usr/local/bin
 
-RUN useradd -m -u 1000 -U -s /bin/sh -d /polkadot polkadot && \
+RUN apt update -y && \
+  apt install -y ca-certificates libssl-dev && \
+  useradd -m -u 1000 -U -s /bin/sh -d /polkadot polkadot && \
 	mkdir -p /polkadot/.local && \
 	mkdir /data && \
 	chown -R polkadot:polkadot /data && \
