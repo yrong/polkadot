@@ -1181,7 +1181,7 @@ parameter_types! {
 	// Difference is 568 days.
 	// We want a lease period to start on the target onboarding date.
 	// 568 % (12 * 7) = 64 day offset
-	pub const LeaseOffset: BlockNumber = 64 * DAYS;
+	pub const LeaseOffset: BlockNumber = MINUTES;
 }
 
 impl slots::Config for Runtime {
