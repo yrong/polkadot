@@ -1803,7 +1803,16 @@ pub fn kusama_local_testnet_config() -> Result<KusamaChainSpec, String> {
 		vec![],
 		None,
 		Some(DEFAULT_PROTOCOL_ID),
-		None,
+		Some(
+			json!({
+				"ss58Format": 2,
+				"tokenSymbol": "KSM",
+				"tokenDecimals": 12,
+			})
+			.as_object()
+			.expect("Network properties are invalid; qed")
+			.to_owned(),
+		),
 		Default::default(),
 	))
 }
