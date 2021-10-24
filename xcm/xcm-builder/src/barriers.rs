@@ -55,7 +55,11 @@ impl<T: Contains<MultiLocation>> ShouldExecute for AllowTopLevelPaidExecutionFro
 	) -> Result<(), ()> {
 		ensure!(T::contains(origin), ());
 		let mut iter = message.0.iter_mut();
-		let i = iter.next().ok_or(())?;
+		let mut i = iter.next().ok_or(())?;
+		// FIXME: https://github.com/paritytech/polkadot/issues/4139
+		if let SetAppendix(..) = i {
+			i = iter.next().ok_or(())?;
+		}
 		match i {
 			ReceiveTeleportedAsset(..) |
 			WithdrawAsset(..) |
