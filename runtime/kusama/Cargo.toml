@@ -61,6 +61,7 @@ pallet-recovery = { git = "https://github.com/paritytech/substrate", default-fea
 pallet-scheduler = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
 pallet-session = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
 pallet-society = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
+pallet-sudo = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
 frame-support = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
 pallet-staking = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
 pallet-staking-reward-fn = { git = "https://github.com/paritytech/substrate", default-features = false , branch = "polkadot-v0.9.12" }
@@ -176,6 +177,7 @@ std = [
 	"xcm-builder/std",
 	"frame-election-provider-support/std",
 	"pallet-bags-list/std",
+	"pallet-sudo/std",
 ]
 runtime-benchmarks = [
 	"runtime-common/runtime-benchmarks",
