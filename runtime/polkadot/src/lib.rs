@@ -170,6 +170,7 @@ impl Contains<Call> for BaseFilter {
 			Call::Slots(_) |
 			Call::Registrar(_) |
 			Call::Auctions(_) |
+			Call::Sudo(_) |
 			Call::Crowdloan(_) => true,
 			// All pallets are allowed, but exhaustive match is defensive
 			// in the case of adding new pallets.
@@ -456,10 +457,10 @@ pallet_staking_reward_curve::build! {
 
 parameter_types! {
 	// Six sessions in an era (24 hours).
-	pub const SessionsPerEra: SessionIndex = 6;
+	pub const SessionsPerEra: SessionIndex = 1;
 	// 28 eras for unbonding (28 days).
-	pub const BondingDuration: pallet_staking::EraIndex = 28;
-	pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
+	pub const BondingDuration: pallet_staking::EraIndex = 3;
+	pub const SlashDeferDuration: pallet_staking::EraIndex = 2;
 	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
 	pub const MaxNominatorRewardedPerValidator: u32 = 256;
 	pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
@@ -899,6 +900,11 @@ impl claims::Config for Runtime {
 	type WeightInfo = weights::runtime_common_claims::WeightInfo<Runtime>;
 }
 
+impl pallet_sudo::Config for Runtime {
+	type Event = Event;
+	type Call = Call;
+}
+
 parameter_types! {
 	pub const MinVestedTransfer: Balance = 1 * DOLLARS;
 }
@@ -1217,7 +1223,7 @@ impl crowdloan::Config for Runtime {
 parameter_types! {
 	// The average auction is 7 days long, so this will be 70% for ending period.
 	// 5 Days = 72000 Blocks @ 6 sec per block
-	pub const EndingPeriod: BlockNumber = 5 * DAYS;
+	pub const EndingPeriod: BlockNumber = 5 * MINUTES;
 	// ~ 1000 samples per day -> ~ 20 blocks per sample -> 2 minute samples
 	pub const SampleLength: BlockNumber = 2 * MINUTES;
 }
@@ -1319,6 +1325,9 @@ construct_runtime! {
 		Slots: slots::{Pallet, Call, Storage, Event<T>} = 71,
 		Auctions: auctions::{Pallet, Call, Storage, Event<T>} = 72,
 		Crowdloan: crowdloan::{Pallet, Call, Storage, Event<T>} = 73,
+
+		// Sudo
+		Sudo: pallet_sudo::{Pallet, Call, Storage, Event<T>, Config<T>} = 100,
 	}
 }
 
